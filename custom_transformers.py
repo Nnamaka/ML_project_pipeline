@@ -49,6 +49,12 @@ housing_extra_attribs = attr_adder.transform(housing.values)
 # making it much more likely that you will find a great combination (and
 # saving you a lot of time).
 
+# Note that the indices(3,4,5,6) for concision and clarity was hard
+# coded. It will be much cleaner to get them dynamically as below
+
+col_names = "total_rooms", "total_bedrooms", "population", "households"
+rooms_ix, bedrooms_ix, population_ix, households_ix = [
+    housing.columns.get_loc(c) for c in col_names] # get the column indices
 
 
 
