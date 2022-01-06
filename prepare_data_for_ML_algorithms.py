@@ -12,5 +12,5 @@
 # but first let's revert to a clean training set(by copying "
 # strat_train_set" once aganin).
 
-housing - strat_train_set.drop("median_house_value",axis=1)
+housing = strat_train_set.drop("median_house_value",axis=1)
 housing_labels = strat_train_set["median_house_value"].copy()
