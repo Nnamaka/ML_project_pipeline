@@ -43,6 +43,17 @@ y = y.astype(np.uint8)
 X_train, X_test, y_train, y_test = X[:60000], X[60000:], y[:60000],
 y[60000:]
 
+
+# NOTE:
+# The training set is already shuffled for us, which is good because this
+# guarantees that all cross-validation folds will be similar (you don’t want
+# one fold to be missing some digits). Moreover, some learning algorithms
+# are sensitive to the order of the training instances, and they perform poorly
+# if they get many similar instances in a row. Shuffling the dataset ensures
+# that this won’t happen
+
+
+
 #---------------------------------------------------------------
 # BINARY CLASSIFIER
 # we simplify the problem for now and only try to indentify one
@@ -107,6 +118,93 @@ confusion_matrix(y_train_5, y_train_pred)
 
 #------------------------------------------------------------
 # Another more concise metric which is
-# PRECISION
+# PRECISION and RECALL
+# The confusion matrix gives you a lot of information, but sometimes you
+# may prefer a more concise metric
+#
+from sklearn.metrics import precision_score, recall_score
+
+precision_score(y_train_5, y_train_pred)
+recall_score(y_train_5, y_train_pred)
+
+# It is often convenient to combine precision and recall into a single metric
+# called the F  score, in particular if you need a simple way to compare two
+# classifiers
+# to compute the F1 score, simply call the f1_score() function
+
+from sklearn.metrics import f1_score
+
+f1_score(y_train_5, y_train_pred)
+
+#----------------------------------------------------------------
+# Precision/Recall Trade-off
+# by adjusting the threshold you change the precision/Recall trade
+# off
+# Lowering the threshold increases recall and reduces precision
+# to adjust threshold you call the "decision_function()" of the 
+# classifier, which returns a score for each instance, and then use
+# any threshold you want to make predictions based on those scores
+
+y_scores = sgd_clf.decision_function([some_digit])
+threshold = 0
+y_some_digit_pred = (y_scores > threshold) # outputs True
+# because threshold is low or 0
+
+#----------------------------------------------------------------
+threshold = 8000
+y_some_digit_pred = (y_scores > threshold)
+y_some_digit_pred # outputs False because the threshold is high
+
+# How do you decide the threshold to use? first use the 
+#"cross_val_predict()" function to get the scores of all instances
+# in the training seet, but this time specify that you want to 
+# return decision scores instead of predictions
+
+y_scores = cross_val_predict(sgd_clf, X_train, y_train_5, cv=3,
+                            method="decision_function")
+
+# then with these scores, use the "precision_recall_curve()" 
+# function to compute precision and recall for all possible 
+# threshold
+    
+from sklearn.metrics import precision_recall_curve
+
+precisions, recalls, thresholds = precision_recall_curve(y_train_5,
+y_scores)
+
+#-----------------------------------------------------------
+# Another way to select a good precision/recall trade-off is to
+# plot precision directly against recall
+# Suppose you decide to aim for 90% precision. You look up the first plot
+# and find that you need to use a threshold of about 8,000. To be more
+# precise you can search for the lowest threshold that gives you at least 90%
+# precision (np.argmax() will give you the first index of the maximum
+# value, which in this case means the first True value):
+
+threshold_90_precision = thresholds[np.argmax(precisions >= 0.90)]
+
+# To make predicitions(for now ), instead of calling the classi
+# -fier's predict() method, you can run this code:
+
+y_train_pred_90 = (y_scores >= threshold_90_precision)
 
 
+#--------------------------------------------------------------
+# The ROC Curve
+# The receiver operating characteristic (ROC) curve is another common
+# tool used with binary classifiers. It is very similar to the precision/recall
+# curve, but instead of plotting precision versus recall, the ROC curve plots
+# the true positive rate (another name for recall) against the false positive
+# rate (FPR)
+
+# To plot the ROC curve, you first use the roc_curve() function to
+# compute the TPR and FPR for various threshold values
+
+from sklearn.metrics import roc_curve
+
+fpr, tpr, thresholds = roc_curve(y_train_5, y_scores)
+
+
+#--------------------------------------------------------------
+# MULTICLASS CLASSIFICATION
+#
