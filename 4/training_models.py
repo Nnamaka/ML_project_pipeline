@@ -95,3 +95,77 @@ y_predict
 # Batch Gradient descent uses the whole batch of training data at
 # every step( actually, full gradient descent would probably be a
 # a better name)
+
+# -----------------------------------------------------------------
+# Polynomial Regression
+# if your data is more complex than a straight line? surprisingly
+# you can use a linear model to fit nonlinear data. A simple way 
+# to do this is to add powers of each feature as new features, then
+# train a linear model on this extended set of features.
+# see example below. 'X' is the data:
+
+from sklearn.preprocessing import PolynomialFea🇹🇲 
+poly_features = PolynomialFeatures(degree=2, include_bias=False)
+X_poly = poly_features.fit_transform(X)
+X[0]
+x_poly[0]
+
+# now we can fit a "linearRegression" model to this extended training
+# data
+
+lin_reg = LinearRegression()
+lin_reg.fit(X_poly,y)
+lin_reg.intercept_, lin_reg.coef_
+
+#-----------------------------------------------------------------
+# UNDERFITTING AND OVERFITTING
+# how can you tell that your model is overfitting or underfitting
+# the data?
+# a) use cross-validation to get an estimate of a model's 
+# generalization performance.
+# b) use learning curves: view the performance of your model for 
+# training set and validation set on plots
+# see the following code to plot curves:
+
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
+
+def plot_learning_curves(model, X, y):
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
+    train_errors, val_errors = [], []
+    for m in range(1, len(X_train)):
+        model.fit(X_train[:m], y_train[:m])
+        y_train_predict = model.predict(X_train[:m])
+        y_val_predict = model.predict(X_val)
+        train_errors.append(mean_squared_error(y_train[:m],
+y_train_predict))
+        val_errors.append(mean_squared_error(y_val, y_val_predict))
+    plt.plot(np.sqrt(train_errors), "r-+", linewidth=2, label="train")
+    plt.plot(np.sqrt(val_errors), "b-", linewidth=3, label="val")
+
+# now to look at the learning curves
+lin_reg = LinearRegression()
+plot_learning_curves(lin_reg, X, y)
+
+# TIPS
+# if your model is underfitting the training data, adding more 
+# training examples will not help. You need to use a more complex
+# model or come up with better features
+# one way to improve an overfitting model is to feed it more 
+# training data until the validation error reaches the training
+# error
+
+#---------------------------------------------------------------
+# REGULARIZED LINEAR MODELS
+# a good way to reduce overfitting is to regularize the model(i.e
+# to constrain it)
+# a good way to regularize a polynomial model is to reduce the
+# number of polynomial degrees.
+# for a linear model, regularization is typically achieved by 
+# constraining the weights of the model.
+# Ridge Regression, Lasso Regression, and Elastic Net, are three
+# different ways to constrain the weights
+
+# Note: it is important to scale the data( e.g using a "StandardScaler")
+# before performing Ridge Regression, as it is sensitive to the 
+# scale of the input features. This is true of most regularized models
