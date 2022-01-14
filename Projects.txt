@@ -1,0 +1,19 @@
+
+
+#--------------------------------------------------------------
+1. Customized Marketing, customer segmentation
+2. Music Genre classification
+3. Online Grocery Recommendation
+4. Generate text of controlable length given topic, emotions and
+   other characteristics
+5. Captcha Solver: Rotating image and other captcha puzzle
+   variations
+6. i)text Chatbot
+   ii) voice chatbot
+
+#--------------------------------------------------------------
+7. Generate social media post
+8. Convert dull image to super resolution still preserving and 
+   enhancing image details
+9. Logo generator: enter text and a few image design
+10. Detect surgical steps in robotic surgery videos
