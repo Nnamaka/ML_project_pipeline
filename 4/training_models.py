@@ -169,3 +169,69 @@ plot_learning_curves(lin_reg, X, y)
 # Note: it is important to scale the data( e.g using a "StandardScaler")
 # before performing Ridge Regression, as it is sensitive to the 
 # scale of the input features. This is true of most regularized models
+
+# Elastic Net is a middle ground between Ridge Regression and lasso
+# Regression. The regulariztion term is a simple mix of both Ridge
+# and Lasso's regularization terms, and you can control the mix
+# ratio r. when r = 0, Elastic Net is equivalent to Ridge Regression
+# and when r = 1, it is equivalent to lasso Regression
+
+#----------------------------------------------------------------
+# so when should you use plain Linear Regression(i.e, without any
+# regulariation), Ridge, lasso, Elastic Net? it is almost always
+# preferable to have at least a little bit of regularization, so 
+# generally you should avoid plain linear Regression. Ridge is a good
+# default, but if you suspect that only a few features are useful, you
+# should prefer lasso or Elastic Net because they tend to reduce the 
+# useless features' weights down to zero. In general, Elastic Net
+# is preferred over lasso because lasso may behave erratically when
+# the number of features is greater than the number of training
+# instances or when several features are strongly correlated
+
+#----------------------------------------------------------------
+# Early Stopping
+# A very different way to regularize iterative learning algorithms 
+# such as Gradient Descent is to stop training as soon as the validation
+# error reaches a minimum.
+# a basic implementation of early stopping is shown below:
+
+from sklearn.base import clone
+
+# prepare the data
+poly_scaler pipeline([
+    ("poly_features", PolynomialFeatures(degree=90,include_bias=False)),
+    ("std_scaler", StandardScaler())
+])
+
+X_train_poly_scaled = poly_scaler.fit_transform(X_train)
+X_val_poly_scaled = poly_scaler.transform(X_val)
+
+sgd_reg = SGDRegressor(max_iter=1, tol=np.infty, warm_start=True,
+                    penalty=None, learning_rate="constant",eta0=0.0005)
+
+minimum_val_error = float("inf")
+best_epoch = None
+best_model = None
+
+for epoch in range(1000):
+    sgd_reg.fit(X_train_poly_scaled, y_train)
+    y_val_predict = sgd_reg.predict(X_val_poly_scaled)
+    val_error = mean_squared_error(y_val, y_val_predict)
+    if val_error < minimum_val_error:
+        minimum_val_error = val_error
+        best_epoch = epoch
+        best_model = clone(sgd_reg)
+
+
+
+#-----------------------------------------------------------------
+# LOGISTIC REGRESSION
+# how does logistic Regression work? it works just like a linear
+# Regression model, a logistic Regression model computes a weighted
+# sum of the input features (plus a bias term), but instead of 
+# outputting the result directly like the linear Regression model
+# does, it outputs the logistic of this result( a sigmoid funciton
+# that outputs a number between 0 and 1) 
+
+#----------------------------------------------------------------
+# TRAINING AND COST FUNCTION
